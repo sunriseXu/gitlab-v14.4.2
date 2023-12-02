@@ -1,0 +1,19 @@
+fragment ListItemShared on CiRunner {
+  id
+  description
+  runnerType
+  shortSha
+  version
+  ipAddress
+  active
+  locked
+  jobCount
+  tagList
+  createdAt
+  contactedAt
+  status(legacyMode: null)
+  userPermissions {
+    updateRunner
+    deleteRunner
+  }
+}

@@ -1,0 +1,6 @@
+query BoardList($id: ListID!, $filters: BoardIssueInput) {
+  boardList(id: $id, issueFilters: $filters) {
+    id
+    issuesCount
+  }
+}

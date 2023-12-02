@@ -1,0 +1,19 @@
+- content_for(:title, 'Auth Error')
+
+.container
+  = render partial: "shared/errors/graphic_422", formats: :svg
+  %h3
+    = _('Sign-in using %{provider} auth failed') % { provider: @provider }
+
+  %p.light.subtitle
+    = _('Sign-in failed because %{error}.') % { error: @error }
+
+  %p
+    = _('Try logging in using your username or email. If you have forgotten your password, try recovering it')
+
+  = link_to _('Sign in'), new_session_path(:user), class: 'gl-button btn primary'
+  = link_to _('Recover password'), new_password_path(:user), class: 'gl-button btn secondary'
+
+  %hr
+  %p.light
+    = _('If none of the options work, try contacting a GitLab administrator.')

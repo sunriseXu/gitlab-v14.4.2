@@ -1,0 +1,11 @@
+---
+table_name: badges
+classes:
+- Badge
+- GroupBadge
+- ProjectBadge
+feature_categories:
+- projects
+description: Stores badges records
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17082
+milestone: '10.6'

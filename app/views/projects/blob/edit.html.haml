@@ -1,0 +1,33 @@
+- breadcrumb_title _("Repository")
+- page_title _("Edit"), @blob.path, @ref
+- content_for :prefetch_asset_tags do
+  - webpack_preload_asset_tag('monaco')
+- add_page_specific_style 'page_bundles/editor'
+
+- if @conflict
+  = render Pajamas::AlertComponent.new(alert_options: { class: 'gl-mb-5 gl-mt-5' },
+    variant: :danger,
+    dismissible: false) do |c|
+    - blob_url = project_blob_path(@project, @id)
+    - external_link_icon = content_tag 'span', { aria: { label: _('Opens new window') }} do
+      - sprite_icon('external-link', css_class: 'gl-icon').html_safe
+    - blob_link_start = '<a href="%{url}" class="gl-link" target="_blank" rel="noopener noreferrer">'.html_safe % { url: blob_url }
+    = c.body do
+      = _('Someone edited the file the same time you did. Please check out %{link_start}the file %{icon}%{link_end} and make sure your changes will not unintentionally remove theirs.').html_safe % { link_start: blob_link_start, link_end: '</a>'.html_safe , icon: external_link_icon }
+
+
+%h1.page-title.gl-font-size-h-display.blob-edit-page-title
+  Edit file
+.file-editor
+  = gl_tabs_nav({ class: 'js-edit-mode nav-links gl-border-0'}) do
+    = gl_tab_link_to _('Write'), '#editor', { tab_class: 'active' }
+
+    = gl_tab_link_to editing_preview_title(@blob.name), '#preview', { data: { 'preview-url': project_preview_blob_path(@project, @id) } }
+
+  = form_tag(project_update_blob_path(@project, @id), method: :put, class: 'js-quick-submit js-requires-input js-edit-blob-form', data: blob_editor_paths(@project)) do
+    = render 'projects/blob/editor', ref: @ref, path: @path, blob_data: @blob.data
+    = render 'shared/new_commit_form', placeholder: "Update #{@blob.name}"
+    = hidden_field_tag 'last_commit_sha', @last_commit_sha
+    = hidden_field_tag 'content', '', id: "file-content"
+    = hidden_field_tag 'from_merge_request_iid', params[:from_merge_request_iid]
+    = render 'projects/commit_button', ref: @ref, cancel_path: project_blob_path(@project, @id)

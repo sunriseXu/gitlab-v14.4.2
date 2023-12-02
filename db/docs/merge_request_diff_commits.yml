@@ -1,0 +1,9 @@
+---
+table_name: merge_request_diff_commits
+classes:
+- MergeRequestDiffCommit
+feature_categories:
+- code_review
+description: Store commit related information within a merge request diff
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/12527
+milestone: '9.4'

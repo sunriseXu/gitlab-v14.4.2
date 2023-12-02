@@ -1,0 +1,23 @@
+query scanResultPolicies($fullPath: ID!) {
+  project(fullPath: $fullPath) {
+    id
+    scanResultPolicies {
+      nodes {
+        name
+        yaml
+        enabled
+        updatedAt
+        userApprovers {
+          id
+          name
+          webUrl
+        }
+        groupApprovers {
+          id
+          fullPath
+          webUrl
+        }
+      }
+    }
+  }
+}

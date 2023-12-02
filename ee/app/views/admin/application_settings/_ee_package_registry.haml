@@ -1,0 +1,20 @@
+.settings-content
+  = gitlab_ui_form_for @application_setting, url: ci_cd_admin_application_settings_path(anchor: 'js-package-settings'), html: { class: 'fieldset-form' } do |f|
+    = form_errors(@application_setting)
+
+    %fieldset
+      .form-group
+        = f.gitlab_ui_checkbox_component :npm_package_requests_forwarding,
+           _('Forward %{package_type} package requests to the %{registry_type} Registry if the packages are not found in the GitLab Package Registry') % { package_type: 'npm', registry_type: 'npm' }
+
+      .form-group
+        = f.gitlab_ui_checkbox_component :pypi_package_requests_forwarding,
+          _('Forward %{package_type} package requests to the %{registry_type} Registry if the packages are not found in the GitLab Package Registry') % { package_type: 'PyPI', registry_type: 'PyPI' }
+
+      - if Feature.enabled?(:maven_central_request_forwarding)
+        .form-group
+          = f.gitlab_ui_checkbox_component :maven_package_requests_forwarding,
+            _('Forward %{package_type} package requests to the %{registry_type} Registry if the packages are not found in the GitLab Package Registry') % { package_type: 'Maven', registry_type: 'Maven' }
+
+    = f.submit _('Save changes'), class: 'btn gl-button btn-confirm'
+

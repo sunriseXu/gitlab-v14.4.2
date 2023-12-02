@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "created_at",
+    "expires_at",
+    "key",
+    "fingerprint_sha256",
+    "projects_with_write_access"
+  ],
+  "properties": {
+    "id": { "type": "integer" },
+    "title": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": ["string", "null"], "format": "date-time" },
+    "key": { "type": "string" },
+    "fingerprint": { "type": "string" },
+    "fingerprint_sha256": { "type": "string" },
+    "projects_with_write_access": {
+      "type": "array",
+      "items": { "$ref": "project/identity.json" }
+    }
+  },
+  "additionalProperties": false
+}

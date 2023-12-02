@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DastScannerProfileSummary renders properly 1`] = `
+<dast-profile-summary-card-stub
+  iseditable="true"
+  profiletype="scanner"
+>
+  
+    Passive scanner
+  
+  <summary-cell-stub
+    class=""
+    label="Scan mode"
+  >
+    <scan-type-badge-stub
+      scantype="PASSIVE"
+    />
+  </summary-cell-stub>
+   
+  <summary-cell-stub
+    label="Spider timeout"
+    value="5 minutes"
+  />
+   
+  <summary-cell-stub
+    label="Target timeout"
+    value="10 seconds"
+  />
+   
+  <summary-cell-stub
+    label="AJAX spider"
+    value="Off"
+  />
+   
+  <summary-cell-stub
+    label="Debug messages"
+    value="Hide debug messages"
+  />
+</dast-profile-summary-card-stub>
+`;

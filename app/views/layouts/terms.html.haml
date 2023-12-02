@@ -1,0 +1,32 @@
+!!! 5
+- add_page_specific_style 'page_bundles/terms'
+- @hide_breadcrumbs = true
+- body_classes = [user_application_theme]
+%html{ lang: I18n.locale, class: page_class }
+  = render "layouts/head"
+
+  %body{ class: body_classes, data: { page: body_data_page } }
+    .layout-page.terms{ class: page_class }
+      .content-wrapper.gl-pb-5
+        .mobile-overlay
+        .alert-wrapper
+          = render "layouts/broadcast"
+          = render 'layouts/header/read_only_banner'
+          = render "layouts/flash"
+
+        %div{ class: "#{container_class} limit-container-width" }
+          .content{ id: "content-body" }
+            = render Pajamas::CardComponent.new do |c|
+              = c.header do
+                = brand_header_logo({add_gitlab_black_text: true})
+              = c.body do
+                - if header_link?(:user_dropdown)
+                  .navbar-collapse
+                    %ul.nav.navbar-nav
+                      %li.header-user.dropdown
+                        = link_to current_user, class: user_dropdown_class, data: { toggle: "dropdown" } do
+                          = image_tag avatar_icon_for_user(current_user, 23), width: 23, height: 23, class: "header-user-avatar", data: { qa_selector: 'user_avatar' }
+                          = sprite_icon('chevron-down')
+                        .dropdown-menu.dropdown-menu-right
+                          = render 'layouts/header/current_user_dropdown'
+                = yield

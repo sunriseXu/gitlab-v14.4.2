@@ -1,0 +1,9 @@
+---
+table_name: snippet_statistics
+classes:
+- SnippetStatistics
+feature_categories:
+- snippets
+description: Stores the repository size, commit count, and file count regarding the snippet repository.
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/35026
+milestone: '13.2'

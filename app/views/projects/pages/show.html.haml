@@ -1,0 +1,20 @@
+- page_title _('Pages')
+
+- unless @project.pages_deployed?
+  = render 'waiting'
+
+- else
+  = render 'header'
+
+  %section
+
+  = render 'pages_settings'
+
+  %hr.clearfix
+    = render 'ssl_limitations_warning' if @project.pages_subdomain.include?(".")
+    = render 'access'
+    - if Gitlab.config.pages.external_http || Gitlab.config.pages.external_https
+      = render 'list'
+    - else
+      = render 'no_domains'
+    = render 'destroy'

@@ -1,0 +1,34 @@
+#import "~/runner/graphql/list/group_runner_connection.fragment.graphql"
+
+query getGroupRunnersEE(
+  $groupFullPath: ID!
+  $before: String
+  $after: String
+  $first: Int
+  $last: Int
+  $paused: Boolean
+  $status: CiRunnerStatus
+  $upgradeStatus: CiRunnerUpgradeStatus
+  $type: CiRunnerType
+  $search: String
+  $sort: CiRunnerSort
+) {
+  group(fullPath: $groupFullPath) {
+    id # Apollo required
+    runners(
+      membership: DESCENDANTS
+      before: $before
+      after: $after
+      first: $first
+      last: $last
+      paused: $paused
+      status: $status
+      upgradeStatus: $upgradeStatus # Added in EE
+      type: $type
+      search: $search
+      sort: $sort
+    ) {
+      ...GroupRunnerConnection
+    }
+  }
+}

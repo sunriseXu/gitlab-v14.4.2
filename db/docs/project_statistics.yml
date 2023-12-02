@@ -1,0 +1,9 @@
+---
+table_name: project_statistics
+classes:
+- ProjectStatistics
+feature_categories:
+- utilization
+description: Records statistics about the usage of various product features
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7754
+milestone: '8.16'

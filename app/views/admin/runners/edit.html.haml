@@ -1,0 +1,53 @@
+- runner_name = "##{@runner.id} (#{@runner.short_sha})"
+- breadcrumb_title _('Edit')
+- page_title _('Edit'), runner_name
+- add_to_breadcrumbs _('Runners'), admin_runners_path
+- add_to_breadcrumbs runner_name, admin_runner_path(@runner)
+
+#js-admin-runner-edit{ data: {runner_id: @runner.id, runner_path: admin_runner_path(@runner) } }
+
+- if @runner.project_type?
+  .gl-overflow-auto
+    %h4.gl-font-lg.gl-my-5= _('Restrict projects for this runner')
+
+  - if @runner.runner_projects.any?
+    %table.table{ data: { testid: 'assigned-projects' } }
+      %thead
+        %tr
+          %th= _('Assigned projects')
+      - @runner.runner_projects.each do |runner_project|
+        - project = runner_project.project
+        - if project
+          %tr
+            %td
+              = render Pajamas::AlertComponent.new(variant: :danger,
+                dismissible: false,
+                title: project.full_name) do |c|
+                = c.actions do
+                  = link_to _('Disable'), admin_namespace_project_runner_project_path(project.namespace, project, runner_project), method: :delete, class: 'btn gl-alert-action btn-confirm btn-md gl-button'
+
+  %table.table{ data: { testid: 'unassigned-projects' } }
+    %thead
+      %tr
+        %th= s_('Runners|Select projects to assign to this runner')
+        %th
+
+    %tr
+      %td
+        = form_tag edit_admin_runner_path(@runner), id: 'runner-projects-search', class: 'form-inline', method: :get do
+          .input-group
+            = search_field_tag :search, params[:search], class: 'form-control gl-form-input', spellcheck: false
+            .input-group-append
+              = submit_tag _('Search'), class: 'gl-button btn btn-default'
+
+      %td
+    - @projects.each do |project|
+      %tr
+        %td
+          = project.full_name
+        %td
+          .float-right
+            = form_for project.runner_projects.new, url: admin_namespace_project_runner_projects_path(project.namespace, project), method: :post do |f|
+              = f.hidden_field :runner_id, value: @runner.id
+              = f.submit _('Enable'), class: 'gl-button btn btn-sm'
+  = paginate_without_count @projects

@@ -1,0 +1,9 @@
+---
+table_name: suggestions
+classes:
+- Suggestion
+feature_categories:
+- code_review
+description: Storing code suggestions within notes
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/8656
+milestone: '11.6'

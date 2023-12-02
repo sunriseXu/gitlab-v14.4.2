@@ -1,0 +1,7 @@
+#import "~/runner/graphql/show/runner_details_shared.fragment.graphql"
+
+fragment RunnerDetails on CiRunner {
+  ...RunnerDetailsShared
+  maintenanceNoteHtml
+  upgradeStatus
+}

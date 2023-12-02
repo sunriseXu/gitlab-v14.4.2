@@ -1,0 +1,19 @@
+- page_title _("Topics")
+
+.top-area
+  .nav-controls.gl-w-full.gl-mt-3.gl-mb-3
+    = form_tag admin_topics_path, method: :get do |f|
+      - search = params.fetch(:search, nil)
+      .search-field-holder
+        = search_field_tag :search, search, class: "form-control gl-form-input search-text-input js-search-input", autofocus: true, spellcheck: false, placeholder: _('Search by name'), data: { qa_selector: 'topic_search_field' }
+        = sprite_icon('search', css_class: 'search-icon')
+    .gl-flex-grow-1
+    .js-merge-topics{ data: { path: merge_admin_topics_path } }
+    = link_to new_admin_topic_path, class: "gl-button btn btn-confirm gl-w-full gl-md-w-auto" do
+      = _('New topic')
+%ul.content-list
+  = render partial: 'topic', collection: @topics
+
+= paginate_collection @topics
+- if @topics.empty?
+  = render 'shared/empty_states/topics'

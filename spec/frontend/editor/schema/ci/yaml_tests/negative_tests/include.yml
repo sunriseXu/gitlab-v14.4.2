@@ -1,0 +1,15 @@
+stages:
+  - prepare
+
+# invalid trigger:include
+trigger missing file property:
+  stage: prepare
+  trigger:
+    include:
+      - project: 'my-group/my-pipeline-library'
+
+trigger missing project property:
+  stage: prepare
+  trigger:
+    include:
+      - file: '.gitlab-ci.yml'

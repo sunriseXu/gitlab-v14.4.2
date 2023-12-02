@@ -1,0 +1,15 @@
+query GetTimelineEvents($fullPath: ID!, $incidentId: IssueID!) {
+  project(fullPath: $fullPath) {
+    id
+    incidentManagementTimelineEvents(incidentId: $incidentId) {
+      nodes {
+        id
+        note
+        noteHtml
+        action
+        occurredAt
+        createdAt
+      }
+    }
+  }
+}

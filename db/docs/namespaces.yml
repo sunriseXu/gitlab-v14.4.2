@@ -1,0 +1,12 @@
+---
+table_name: namespaces
+classes:
+- Group
+- Namespace
+- Namespaces::ProjectNamespace
+- Namespaces::UserNamespace
+feature_categories:
+- subgroups
+description: Storing namespaces records for groups, users and projects
+introduced_by_url: https://github.com/gitlabhq/gitlabhq/pull/2051
+milestone: "<6.0"

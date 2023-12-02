@@ -1,0 +1,29 @@
+stages:
+  - prepare
+
+# valid include:rules
+include:
+  - local: builds.yml
+    rules:
+      - if: '$INCLUDE_BUILDS == "true"'
+        when: always
+
+# valid trigger:include
+trigger:include accepts project and file properties:
+  stage: prepare
+  script:
+    - echo 'creating pipeline...'
+  trigger:
+    include:
+      - project: 'my-group/my-pipeline-library'
+        file: '.gitlab-ci.yml'
+
+trigger:include accepts optional ref property:
+  stage: prepare
+  script:
+    - echo 'creating pipeline...'
+  trigger:
+    include:
+      - project: 'my-group/my-pipeline-library'
+        file: '.gitlab-ci.yml'
+        ref: 'main'

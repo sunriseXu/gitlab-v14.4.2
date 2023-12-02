@@ -1,0 +1,65 @@
+@import 'mixins_and_variables_and_functions';
+
+.gl-token-selector-token-container {
+  display: flex;
+  align-items: center;
+}
+
+#weight-widget-input:not(:hover, :focus),
+#weight-widget-input[readonly] {
+  box-shadow: none;
+}
+
+#weight-widget-input[readonly] {
+  background-color: var(--white, $white);
+}
+
+.work-item-assignees {
+  .assign-myself {
+    display: none;
+  }
+
+  @include media-breakpoint-up(sm) {
+    .assignees-selector:hover .assign-myself {
+      display: block;
+    }
+  }
+}
+
+.work-item-due-date {
+  .gl-datepicker-input.gl-form-input.form-control {
+    width: 10rem;
+
+    &:not(:focus, :hover) {
+      box-shadow: none;
+
+      ~ .gl-datepicker-actions {
+        display: none;
+      }
+    }
+
+    &[disabled] {
+      background-color: var(--white, $white);
+      box-shadow: none;
+
+      ~ .gl-datepicker-actions {
+        display: none;
+      }
+    }
+  }
+
+  .gl-datepicker-actions:focus,
+  .gl-datepicker-actions:hover {
+    display: flex !important;
+  }
+}
+
+.work-item-labels {
+  .gl-token {
+    padding-left: $gl-spacing-scale-1;
+  }
+
+  .gl-token-close {
+    display: none;
+  }
+}

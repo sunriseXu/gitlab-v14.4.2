@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TrialStatusWidget component without the optional containerId prop matches the snapshot 1`] = `
+<gl-link-stub
+  href="billing/path-for/group"
+  title="Ultimate Trial"
+>
+  <div
+    class="gl-display-flex gl-flex-direction-column gl-align-items-stretch gl-w-full"
+    data-testid="widget-menu"
+  >
+    <div
+      class="gl-display-flex gl-w-full"
+    >
+      <span
+        class="nav-icon-container svg-container"
+      >
+        <img
+          class="svg"
+          src="illustrations/golden_tanuki.svg"
+          width="16"
+        />
+      </span>
+       
+      <span
+        class="nav-item-name"
+      >
+        
+        Ultimate Trial
+      
+      </span>
+       
+      <span
+        class="collapse-text gl-font-sm gl-mr-auto"
+      >
+        
+        Day 10/30
+      
+      </span>
+    </div>
+     
+    <div
+      class="gl-display-flex gl-align-items-stretch gl-mt-2"
+    >
+      <gl-progress-bar-stub
+        class="gl-flex-grow-1"
+        value="10"
+      />
+    </div>
+  </div>
+</gl-link-stub>
+`;

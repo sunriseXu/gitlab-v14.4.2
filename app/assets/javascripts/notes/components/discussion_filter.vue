@@ -1,0 +1,207 @@
+<script>
+import { GlDropdown, GlDropdownItem, GlDropdownDivider } from '@gitlab/ui';
+import { mapGetters, mapActions } from 'vuex';
+import { getLocationHash, doesHashExistInUrl } from '~/lib/utils/url_utility';
+import { __ } from '~/locale';
+import Tracking from '~/tracking';
+import LocalStorageSync from '~/vue_shared/components/local_storage_sync.vue';
+import {
+  DISCUSSION_FILTERS_DEFAULT_VALUE,
+  HISTORY_ONLY_FILTER_VALUE,
+  COMMENTS_ONLY_FILTER_VALUE,
+  DISCUSSION_TAB_LABEL,
+  DISCUSSION_FILTER_TYPES,
+  NOTE_UNDERSCORE,
+  ASC,
+  DESC,
+} from '../constants';
+import notesEventHub from '../event_hub';
+
+const SORT_OPTIONS = [
+  { key: DESC, text: __('Newest first'), cls: 'js-newest-first' },
+  { key: ASC, text: __('Oldest first'), cls: 'js-oldest-first' },
+];
+
+export default {
+  SORT_OPTIONS,
+  components: {
+    GlDropdown,
+    GlDropdownItem,
+    GlDropdownDivider,
+    LocalStorageSync,
+  },
+  mixins: [Tracking.mixin()],
+  props: {
+    filters: {
+      type: Array,
+      required: true,
+    },
+    selectedValue: {
+      type: Number,
+      default: DISCUSSION_FILTERS_DEFAULT_VALUE,
+      required: false,
+    },
+  },
+  data() {
+    return {
+      currentValue: doesHashExistInUrl(NOTE_UNDERSCORE)
+        ? DISCUSSION_FILTERS_DEFAULT_VALUE
+        : this.selectedValue,
+      defaultValue: DISCUSSION_FILTERS_DEFAULT_VALUE,
+      displayFilters: true,
+    };
+  },
+  computed: {
+    ...mapGetters([
+      'getNotesDataByProp',
+      'timelineEnabled',
+      'isLoading',
+      'sortDirection',
+      'persistSortOrder',
+      'noteableType',
+    ]),
+    currentFilter() {
+      if (!this.currentValue) return this.filters[0];
+      return this.filters.find((filter) => filter.value === this.currentValue);
+    },
+    selectedSortOption() {
+      return SORT_OPTIONS.find(({ key }) => this.sortDirection === key);
+    },
+    sortStorageKey() {
+      return `sort_direction_${this.noteableType.toLowerCase()}`;
+    },
+  },
+  created() {
+    if (window.mrTabs) {
+      const { eventHub, currentTab } = window.mrTabs;
+
+      eventHub.$on('MergeRequestTabChange', this.toggleFilters);
+      this.toggleFilters(currentTab);
+    }
+
+    notesEventHub.$on('dropdownSelect', this.selectFilter);
+    window.addEventListener('hashchange', this.handleLocationHash);
+  },
+  mounted() {
+    this.toggleCommentsForm();
+  },
+  destroyed() {
+    notesEventHub.$off('dropdownSelect', this.selectFilter);
+    window.removeEventListener('hashchange', this.handleLocationHash);
+  },
+  methods: {
+    ...mapActions([
+      'filterDiscussion',
+      'setCommentsDisabled',
+      'setTargetNoteHash',
+      'setTimelineView',
+      'setDiscussionSortDirection',
+    ]),
+    selectFilter(value, persistFilter = true) {
+      const filter = parseInt(value, 10);
+
+      if (filter === this.currentValue) return;
+
+      if (this.timelineEnabled && filter !== COMMENTS_ONLY_FILTER_VALUE) {
+        this.setTimelineView(false);
+      }
+      this.currentValue = filter;
+      this.filterDiscussion({
+        path: this.getNotesDataByProp('discussionsPath'),
+        filter,
+        persistFilter,
+      });
+      this.toggleCommentsForm();
+    },
+    toggleCommentsForm() {
+      this.setCommentsDisabled(this.currentValue === HISTORY_ONLY_FILTER_VALUE);
+    },
+    toggleFilters(tab) {
+      this.displayFilters = tab === DISCUSSION_TAB_LABEL;
+    },
+    handleLocationHash() {
+      const hash = getLocationHash();
+
+      if (/^note_/.test(hash) && this.currentValue !== DISCUSSION_FILTERS_DEFAULT_VALUE) {
+        this.selectFilter(this.defaultValue, false);
+        this.setTargetNoteHash(hash);
+      }
+    },
+    filterType(value) {
+      if (value === 0) {
+        return DISCUSSION_FILTER_TYPES.ALL;
+      } else if (value === 1) {
+        return DISCUSSION_FILTER_TYPES.COMMENTS;
+      }
+      return DISCUSSION_FILTER_TYPES.HISTORY;
+    },
+    fetchSortedDiscussions(direction) {
+      if (this.isSortDropdownItemActive(direction)) {
+        return;
+      }
+
+      this.setDiscussionSortDirection({ direction });
+      this.track('change_discussion_sort_direction', { property: direction });
+    },
+    isSortDropdownItemActive(sortDir) {
+      return sortDir === this.sortDirection;
+    },
+  },
+};
+</script>
+
+<template>
+  <div
+    v-if="displayFilters"
+    id="discussion-preferences"
+    data-testid="discussion-preferences"
+    class="gl-display-inline-block gl-vertical-align-bottom full-width-mobile"
+  >
+    <local-storage-sync
+      :value="sortDirection"
+      :storage-key="sortStorageKey"
+      :persist="persistSortOrder"
+      as-string
+      @input="setDiscussionSortDirection({ direction: $event })"
+    />
+    <gl-dropdown
+      id="discussion-preferences-dropdown"
+      class="full-width-mobile"
+      data-qa-selector="discussion_preferences_dropdown"
+      text="Sort or filter"
+      :disabled="isLoading"
+      right
+    >
+      <div id="discussion-sort">
+        <gl-dropdown-item
+          v-for="{ text, key, cls } in $options.SORT_OPTIONS"
+          :key="text"
+          :class="cls"
+          is-check-item
+          :is-checked="isSortDropdownItemActive(key)"
+          @click="fetchSortedDiscussions(key)"
+        >
+          {{ text }}
+        </gl-dropdown-item>
+      </div>
+      <gl-dropdown-divider />
+      <div
+        id="discussion-filter"
+        class="discussion-filter-container js-discussion-filter-container"
+      >
+        <gl-dropdown-item
+          v-for="filter in filters"
+          :key="filter.value"
+          is-check-item
+          :is-checked="filter.value === currentValue"
+          :class="{ 'is-active': filter.value === currentValue }"
+          :data-filter-type="filterType(filter.value)"
+          data-qa-selector="filter_menu_item"
+          @click.prevent="selectFilter(filter.value)"
+        >
+          {{ filter.title }}
+        </gl-dropdown-item>
+      </div>
+    </gl-dropdown>
+  </div>
+</template>

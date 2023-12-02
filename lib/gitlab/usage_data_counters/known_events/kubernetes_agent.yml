@@ -1,0 +1,4 @@
+- name: agent_users_using_ci_tunnel
+  category: kubernetes_agent
+  redis_slot: agent
+  aggregation: weekly

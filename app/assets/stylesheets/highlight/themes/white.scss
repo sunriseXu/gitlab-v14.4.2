@@ -1,0 +1,13 @@
+.code.white {
+  @import '../white_base';
+
+  @include conflict-colors('white');
+  @include hljs-override('variable', $white-nv);
+  @include hljs-override('symbol', $white-ss);
+  @include hljs-override('title.class_.inherited__', $white-no);
+}
+
+:root {
+  --default-diff-color-deletion: #eb919b;
+  --default-diff-color-addition: #a0f5b4;
+}

@@ -1,0 +1,125 @@
+stages:
+  - sync
+  - prepare
+  - build-images
+  - fixtures
+  - lint
+  - test
+  - post-test
+  - review
+  - qa
+  - post-qa
+  - pages
+  - notify
+
+# always use `gitlab-org` runners, however
+# in cases where jobs require Docker-in-Docker, the job
+# definition must be extended with `.use-docker-in-docker`
+default:
+  image: $DEFAULT_CI_IMAGE
+  tags:
+    - gitlab-org
+  # All jobs are interruptible by default
+  interruptible: true
+  # Default job timeout set to 90m https://gitlab.com/gitlab-com/gl-infra/infrastructure/-/issues/10520
+  timeout: 90m
+
+workflow:
+  rules:
+    # If `$FORCE_GITLAB_CI` is set, create a pipeline.
+    - if: '$FORCE_GITLAB_CI'
+    # As part of the process of creating RCs automatically, we update stable
+    # branches with the changes of the most recent production deployment. The
+    # merge requests used for this merge a branch release-tools/X into a stable
+    # branch. For these merge requests we don't want to run any pipelines, as
+    # they serve no purpose and will run anyway when the changes are merged.
+    - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^release-tools\/\d+\.\d+\.\d+-rc\d+$/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^[\d-]+-stable(-ee)?$/ && $CI_PROJECT_PATH == "gitlab-org/gitlab"'
+      when: never
+    # For merge requests running exclusively in Ruby 3.0
+    - if: '($CI_MERGE_REQUEST_EVENT_TYPE == "merged_result" || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train") && $CI_MERGE_REQUEST_LABELS =~ /pipeline:run-in-ruby3/'
+      variables:
+        RUBY_VERSION: "3.0"
+    # For merge requests running exclusively in Ruby 3.0
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /pipeline:run-in-ruby3/'
+      variables:
+        RUBY_VERSION: "3.0"
+    # For (detached) merge request pipelines.
+    - if: '$CI_MERGE_REQUEST_IID'
+    # For the maintenance scheduled pipelines, we set specific variables.
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "maintenance"'
+      variables:
+        CRYSTALBALL: "true"
+    # For `$CI_DEFAULT_BRANCH` branch, create a pipeline (this includes on schedules, pushes, merges, etc.).
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    # For tags, create a pipeline.
+    - if: '$CI_COMMIT_TAG'
+    # If `$GITLAB_INTERNAL` isn't set, don't create a pipeline.
+    - if: '$GITLAB_INTERNAL == null'
+      when: never
+    # For stable, auto-deploy, and security branches, create a pipeline.
+    - if: '$CI_COMMIT_BRANCH =~ /^[\d-]+-stable(-ee)?$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^\d+-\d+-auto-deploy-\d+$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^security\//'
+
+variables:
+  PG_VERSION: "12"
+  DEFAULT_CI_IMAGE: "${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}.patched-golang-1.17-node-16.14-postgresql-${PG_VERSION}:rubygems-3.2-git-2.36-lfs-2.9-chrome-${CHROME_VERSION}-yarn-1.22-graphicsmagick-1.3.36"
+  RAILS_ENV: "test"
+  NODE_ENV: "test"
+  BUNDLE_WITHOUT: "production:development"
+  BUNDLE_INSTALL_FLAGS: "--jobs=$(nproc) --retry=3"
+  BUNDLE_FROZEN: "true"
+  # we override the max_old_space_size to prevent OOM errors
+  NODE_OPTIONS: --max_old_space_size=3584
+  GIT_DEPTH: "20"
+  # 'GIT_STRATEGY: clone' optimizes the pack-objects cache hit ratio
+  GIT_STRATEGY: "clone"
+  GIT_SUBMODULE_STRATEGY: "none"
+  GET_SOURCES_ATTEMPTS: "3"
+  DEBIAN_VERSION: "bullseye"
+  CHROME_VERSION: "103"
+  DOCKER_VERSION: "20.10.14"
+  RUBY_VERSION: "2.7"
+
+  TMP_TEST_FOLDER: "${CI_PROJECT_DIR}/tmp/tests"
+  GITLAB_WORKHORSE_FOLDER: "gitlab-workhorse"
+  TMP_TEST_GITLAB_WORKHORSE_PATH: "${TMP_TEST_FOLDER}/${GITLAB_WORKHORSE_FOLDER}"
+  KNAPSACK_RSPEC_SUITE_REPORT_PATH: knapsack/report-master.json
+  FLAKY_RSPEC_SUITE_REPORT_PATH: rspec/flaky/report-suite.json
+  RSPEC_TESTS_MAPPING_PATH: crystalball/mapping.json
+  RSPEC_PACKED_TESTS_MAPPING_PATH: crystalball/packed-mapping.json
+  RSPEC_PROFILING_FOLDER_PATH: rspec/profiling
+  FRONTEND_FIXTURES_MAPPING_PATH: crystalball/frontend_fixtures_mapping.json
+  RSPEC_CHANGED_FILES_PATH: rspec/changed_files.txt
+  RSPEC_MATCHING_TESTS_PATH: rspec/matching_tests.txt
+  RSPEC_LAST_RUN_RESULTS_FILE: rspec/rspec_last_run_results.txt
+  JUNIT_RESULT_FILE: rspec/junit_rspec.xml
+  JUNIT_RETRY_FILE: rspec/junit_rspec-retry.xml
+
+  ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+  ELASTIC_URL: "http://elastic:changeme@elasticsearch:9200"
+  CACHE_CLASSES: "true"
+  CHECK_PRECOMPILED_ASSETS: "true"
+  FF_USE_FASTZIP: "true"
+  SKIP_FLAKY_TESTS_AUTOMATICALLY: "true"
+  RETRY_FAILED_TESTS_IN_NEW_PROCESS: "true"
+  # Run with decomposed databases by default
+  DECOMPOSED_DB: "true"
+
+  DOCS_REVIEW_APPS_DOMAIN: "35.193.151.162.nip.io"
+  DOCS_GITLAB_REPO_SUFFIX: "ee"
+
+  REVIEW_APPS_IMAGE: "${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images/ruby-3.0:gcloud-383-kubectl-1.23-helm-3.5"
+  REVIEW_APPS_DOMAIN: "gitlab-review.app"
+  REVIEW_APPS_GCP_PROJECT: "gitlab-review-apps"
+  REVIEW_APPS_GCP_REGION: "us-central1"
+
+  BUILD_ASSETS_IMAGE: "true"  # Set it to "false" to disable assets image building, used in `build-assets-image`
+  SIMPLECOV: "true"
+
+  REGISTRY_HOST: "registry.gitlab.com"
+  REGISTRY_GROUP: "gitlab-org"
+
+include:
+  - local: .gitlab/ci/*.gitlab-ci.yml
+  - remote: 'https://gitlab.com/gitlab-org/frontend/untamper-my-lockfile/-/raw/main/templates/merge_request_pipelines.yml'

@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../spec/simplecov_env'
+SimpleCovEnv.configure_profile
+SimpleCovEnv.configure_formatter
+
+resultset_files = Dir.glob(File.join(SimpleCov.coverage_path, '*', '.resultset.json'))
+exit(0) if resultset_files.empty?
+
+SimpleCov.collate(resultset_files)

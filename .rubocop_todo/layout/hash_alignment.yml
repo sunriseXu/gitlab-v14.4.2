@@ -1,0 +1,6 @@
+---
+# Cop supports --auto-correct.
+Layout/HashAlignment:
+  Exclude:
+    - 'ee/spec/lib/ee/gitlab/usage_data_spec.rb'
+    - 'spec/serializers/environment_serializer_spec.rb'

@@ -1,0 +1,8 @@
+- if defined?(token)
+  - path = oauth_authorized_application_path(0, token_id: token)
+- else
+  - path = oauth_authorized_application_path(application)
+
+= form_tag path do
+  %input{ :name => "_method", :type => "hidden", :value => "delete" }/
+  = submit_tag _('Revoke'), class: 'gl-button btn btn-danger btn-sm', aria: { label: s_('AuthorizedApplication|Revoke application') }, data: { confirm: s_('AuthorizedApplication|Are you sure you want to revoke this application?'), confirm_btn_variant: 'danger' }

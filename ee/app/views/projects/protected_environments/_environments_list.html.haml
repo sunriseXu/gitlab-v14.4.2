@@ -1,0 +1,22 @@
+.protected-branches-list.js-protected-environments-list
+  - if @protected_environments.empty?
+    %p.settings-message.text-center
+      = s_('ProtectedEnvironment|No environments in this project are protected.')
+  - else
+    .flash-container
+    %table.table.table-bordered
+      %colgroup
+        %col{ width: '30%' }
+        %col
+        %col
+        - if can_admin_project
+          %col{ width: '10%' }
+      %thead
+        %tr
+          %th= s_('ProtectedEnvironment|Protected Environment (%{protected_environments_count})') % { protected_environments_count: limited_counter_with_delimiter(@protected_environments) }
+          %th= s_('ProtectedEnvironment|Allowed to deploy')
+          %th= s_('ProtectedEnvironment|Required approvals')
+          - if can_admin_project
+            %th
+      %tbody
+        = render partial: 'projects/protected_environments/protected_environment', collection: @protected_environments, locals: { can_admin_project: can_admin_project }

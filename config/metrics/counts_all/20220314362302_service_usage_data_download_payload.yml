@@ -1,0 +1,26 @@
+---
+key_path: counts.service_usage_data_download_payload_click
+description: Count Download Payload button clicks
+data_category: optional
+name: service_usage_data_download_payload_click
+product_section: analytics
+product_stage: analytics
+product_group: product_intelligence
+product_category: collection
+value_type: number
+status: active
+time_frame: all
+data_source: redis
+instrumentation_class: RedisMetric
+options:
+  prefix: service_usage_data
+  event: download_payload_click
+distribution:
+  - ce
+  - ee
+tier:
+  - free
+  - premium
+  - ultimate
+performance_indicator_type: []
+milestone: "14.9"

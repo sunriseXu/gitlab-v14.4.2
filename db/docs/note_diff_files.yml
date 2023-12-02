@@ -1,0 +1,9 @@
+---
+table_name: note_diff_files
+classes:
+- NoteDiffFile
+feature_categories:
+- code_review
+description: Persisted truncated note diffs
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/18991
+milestone: '11.0'
